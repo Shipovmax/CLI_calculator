@@ -1,78 +1,82 @@
 # calc — CLI Calculator
 
-> Консольный калькулятор на Go. Учебный проект #1 в рамках подготовки к позиции Go Backend Developer.
+> A command-line calculator written in Go. Learning Project #1 as part of preparation for a Go Backend Developer role.
 
 ---
 
-## Для рекрутера
+## For the Recruiter
 
-### Что это и зачем
+### What It Is and Why
 
-Первый проект в roadmap'е перехода на Go. Цель — не калькулятор сам по себе, а **освоение базовых конструкций языка** в изоляции от фреймворков и библиотек: работа с `os.Args`, типизация, обработка ошибок через `stderr` + exit codes, базовый control flow.
+The first project in the Go transition roadmap. The goal is not the calculator itself, but **mastering the core constructs of the language** in isolation from frameworks and libraries: working with `os.Args`, static typing, error handling via `stderr` + exit codes, and basic control flow.
 
-### Что демонстрирует этот проект
+### What This Project Demonstrates
 
-| Навык | Реализация |
+| Skill | Implementation |
 |---|---|
-| Работа с аргументами CLI | `os.Args` без сторонних парсеров |
-| Типизация | `float64` для всех числовых операций |
-| Обработка ошибок | `fmt.Fprintf(os.Stderr)` + `os.Exit(1)` |
-| Control flow | `switch` с явным `default` для неизвестных операторов |
-| Стандартная библиотека | Только `fmt`, `os`, `strconv` |
+| Handling CLI Arguments | `os.Args` without third-party parsers |
+| Static Typing | `float64` for all numeric operations |
+| Error Handling | `fmt.Fprintf(os.Stderr)` + `os.Exit(1)` |
+| Control Flow | `switch` statement with an explicit `default` case for unknown operators |
+| Standard Library | Restricted to `fmt`, `os`, and `strconv` |
 
-### Стек
+### Stack
 
-- **Язык:** Go 1.22+
-- **Зависимости:** только стандартная библиотека
-- **Платформа:** Linux / macOS / Windows
+- **Language:** Go 1.22+
+- **Dependencies:** Standard library only
+- **Platform:** Linux / macOS / Windows
 
 ---
 
-## Для разработчика
+## For the Developer
 
-### Архитектурные решения
+### Architectural Decisions
 
-**Почему всё в одном `main.go`?**
-Проект намеренно минималистичен. Разбивать 50 строк по пакетам — over-engineering. Для проектов такого масштаба один файл — это правильное решение, а не техдолг.
+**Why keep everything in a single `main.go`?**
+The project is intentionally minimalistic. Splitting 50 lines of code across packages would be over-engineering. For a project of this scale, a single file is the correct decision, not technical debt.
 
-**Почему `float64`, а не `int`?**
-`10 / 3` должно давать `3.3333...`, а не `3`. Принудительный `float64` через `strconv.ParseFloat` решает это без дополнительной логики.
+**Why `float64` instead of `int`?**
+`10 / 3` should evaluate to `3.3333...`, not `3`. Enforcing `float64` via `strconv.ParseFloat` handles this elegantly without adding extra logic.
 
-**Почему ошибки в `stderr`, а не `stdout`?**
-Это unix-конвенция: нормальный вывод — в `stdout`, ошибки — в `stderr`. Позволяет корректно использовать калькулятор в пайпах и скриптах:
+**Why output errors to `stderr` instead of `stdout`?**
+This is a UNIX convention: normal output goes to `stdout`, while errors go to `stderr`. This allows the calculator to be used seamlessly in shell pipes and scripts:
 ```bash
-result=$(./calc 10 + 5)   # $result == "15", ошибки не попадут в переменную
+result=$(./calc 10 + 5)   # $result == "15", errors won't pollute the variable
+
 ```
 
-**Exit code 1 при ошибке** — стандарт для CLI-инструментов. Позволяет вызывающему скрипту проверить успешность через `$?`.
+**Using Exit Code 1 on error** is standard practice for CLI tools. It allows the invoking script to check for success using `$?`.
 
-### Структура
+### Structure
 
 ```
 calc/
-└── main.go   # точка входа + вся логика
+└── main.go   # entry point + all logic
+
 ```
 
-### Установка и запуск
+### Installation and Setup
 
 ```bash
-git clone https://github.com/Shipovmax/calc
+git clone [https://github.com/Shipovmax/calc](https://github.com/Shipovmax/calc)
 cd calc
 go build -o calc .
 ./calc 10 + 5
+
 ```
 
-### Использование
+### Usage
 
 ```bash
-./calc <число> <оператор> <число>
+./calc <number> <operator> <number>
+
 ```
 
-**Поддерживаемые операторы:** `+` `-` `*` `/`
+**Supported Operators:** `+`, `-`, `*`, `/`
 
-**Числа:** любые значения, парсируемые как `float64` (целые, дробные, отрицательные)
+**Numbers:** Any values parseable as `float64` (integers, decimals, negative numbers)
 
-### Примеры
+### Examples
 
 ```bash
 ./calc 10 + 5      # 15
@@ -81,30 +85,34 @@ go build -o calc .
 ./calc 10 / 3      # 3.3333333333333335
 ./calc 2.5 + 1.5   # 4
 ./calc -5 + 3      # -2
+
 ```
 
-### Обработка ошибок
+### Error Handling
 
 ```bash
 ./calc 10 / 0
-# stderr: ошибка: деление на ноль
+# stderr: error: division by zero
 # exit code: 1
 
 ./calc 10 ^ 2
-# stderr: ошибка: неизвестный оператор "^"
+# stderr: error: unknown operator "^"
 # exit code: 1
 
 ./calc 10 5
-# stderr: ошибка: нужно ровно 3 аргумента (получено: 2)
+# stderr: error: exactly 3 arguments are required (received: 2)
 # exit code: 1
 
 ./calc abc + 5
-# stderr: ошибка: "abc" не является числом
+# stderr: error: "abc" is not a number
 # exit code: 1
+
 ```
 
-### Запуск без сборки
+### Running Without Building
 
 ```bash
 go run main.go 10 + 5
+
 ```
+
